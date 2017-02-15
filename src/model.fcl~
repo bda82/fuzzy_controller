@@ -1,0 +1,37 @@
+FUNCTION_BLOCK model
+    VAR_INPUT
+        wind        : REAL; (* RANGE(0 .. 100) *)
+        state_in    : REAL; (* RANGE(0 .. 100) *)
+    END_VAR
+
+    VAR_OUTPUT
+        state_out   : REAL; (* RANGE(0 .. 100) *)
+    END_VAR
+
+    FUZZIFY wind
+        TERM low    := (0, 1) (30, 1) (35, 0);
+        TERM high   := (0, 0) (30, 0) (35, 1);
+    END_FUZZIFY
+
+    FUZZIFY state_in
+        TERM false  := (0, 1) (49, 1) (50, 0);
+        TERM true   := (0, 0) (49, 0) (50, 1);
+    END_FUZZIFY
+
+
+    DEFUZZIFY state_out
+        TERM false := 10;
+        TERM true := 90;
+        ACCU: MAX;
+        METHOD: COGS;
+        DEFAULT := 0;
+    END_DEFUZZIFY
+
+
+    RULEBLOCK No1
+        AND : MIN;
+        RULE 1 : IF wind IS low AND state_in IS true THEN state_out IS false;
+        RULE 2 : IF wind IS high THEN state_in IS false;
+    END_RULEBLOCK
+
+END_FUNCTION_BLOCK
